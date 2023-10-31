@@ -1,21 +1,32 @@
 package app
 
-import "os"
+import (
+	"github.com/joho/godotenv"
+	"os"
+	"strings"
+)
 
-type Config struct{}
-
-func (cfg *Config) Host() string {
-	return os.Getenv("MYPASS_HOST")
+type Config struct {
+	Host      string
+	Port      string
+	SecretKey string
+	Env       string
 }
 
-func (cfg *Config) Port() string {
-	return os.Getenv("MYPASS_PORT")
-}
+var Cfg *Config
 
-func (cfg *Config) SecretKey() string {
-	return os.Getenv("MYPASS_SECRET_KEY")
-}
+func init() {
+	env := os.Getenv("MYPASS_ENV")
+	env = strings.ToLower(env)
+	if env != "" {
+		_ = godotenv.Load(".env." + env)
+	}
+	_ = godotenv.Load()
 
-func (cfg *Config) Env() string {
-	return os.Getenv("MYPASS_ENV")
+	Cfg = &Config{
+		Host:      os.Getenv("MYPASS_HOST"),
+		Port:      os.Getenv("MYPASS_PORT"),
+		SecretKey: os.Getenv("MYPASS_SECRET_KEY"),
+		Env:       env,
+	}
 }

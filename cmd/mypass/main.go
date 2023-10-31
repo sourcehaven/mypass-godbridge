@@ -10,8 +10,7 @@ import (
 // @host          localhost:7277
 // @BasePath      /api
 func main() {
-	cfg := app.Config{}
-	if cfg.Env() == "development" {
+	if app.Cfg.Env == "development" {
 		app.DummyDbInit()
 	}
 	mypass := app.CreateApp()
