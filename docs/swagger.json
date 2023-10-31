@@ -1,0 +1,14 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "MyPass API",
+        "contact": {},
+        "license": {
+            "name": "MIT"
+        },
+        "version": "0.1.0"
+    },
+    "host": "localhost:7277",
+    "basePath": "/api",
+    "paths": {}
+}

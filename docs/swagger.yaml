@@ -1,0 +1,10 @@
+basePath: /api
+host: localhost:7277
+info:
+  contact: {}
+  license:
+    name: MIT
+  title: MyPass API
+  version: 0.1.0
+paths: {}
+swagger: "2.0"
