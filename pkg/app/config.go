@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/joho/godotenv"
+	"log"
 	"os"
-	"strings"
 )
 
 type Config struct {
@@ -16,17 +16,25 @@ type Config struct {
 var Cfg *Config
 
 func init() {
-	env := os.Getenv("MYPASS_ENV")
-	env = strings.ToLower(env)
-	if env != "" {
-		_ = godotenv.Load(".env." + env)
+	env := getEnvOrPanic("MYPASS_ENV")
+
+	err := godotenv.Load(".env." + env)
+	if err != nil {
+		log.Fatal("Error loading .env." + env + " file!")
 	}
-	_ = godotenv.Load()
 
 	Cfg = &Config{
-		Host:      os.Getenv("MYPASS_HOST"),
-		Port:      os.Getenv("MYPASS_PORT"),
-		SecretKey: os.Getenv("MYPASS_SECRET_KEY"),
+		Host:      getEnvOrPanic("MYPASS_HOST"),
+		Port:      getEnvOrPanic("MYPASS_PORT"),
+		SecretKey: getEnvOrPanic("MYPASS_SECRET_KEY"),
 		Env:       env,
 	}
+}
+
+func getEnvOrPanic(key string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		panic(key + " is not found in environment variables!")
+	}
+	return val
 }

@@ -1,9 +1,9 @@
 package app
 
 import (
+	"github.com/sourcehaven/mypass-godbridge/pkg/db"
+	"github.com/sourcehaven/mypass-godbridge/pkg/models"
 	"log"
-	"mypass-godbridge/pkg/db"
-	"mypass-godbridge/pkg/models"
 )
 
 func DummyDbInit() {

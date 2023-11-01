@@ -1,7 +1,7 @@
 package main
 
 import (
-	"mypass-godbridge/pkg/app"
+	"github.com/sourcehaven/mypass-godbridge/pkg/app"
 )
 
 // @title         MyPass API

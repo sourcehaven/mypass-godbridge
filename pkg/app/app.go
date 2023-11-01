@@ -2,9 +2,9 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/sourcehaven/mypass-godbridge/pkg/routers"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"mypass-godbridge/pkg/routers"
 )
 
 type App struct {

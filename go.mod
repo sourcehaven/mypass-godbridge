@@ -1,4 +1,4 @@
-module mypass-godbridge
+module github.com/sourcehaven/mypass-godbridge
 
 go 1.21
 
