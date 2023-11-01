@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/sourcehaven/mypass-godbridge/pkg/app"
+	_ "github.com/sourcehaven/mypass-godbridge/pkg/ini"
 )
 
 // @title         MyPass API
@@ -10,9 +11,6 @@ import (
 // @host          localhost:7277
 // @BasePath      /api
 func main() {
-	if app.Cfg.Env == "development" {
-		app.DummyDbInit()
-	}
-	mypass := app.CreateApp()
+	mypass := app.New()
 	mypass.Start()
 }
