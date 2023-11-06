@@ -6,16 +6,16 @@ import (
 	"github.com/sourcehaven/mypass-godbridge/pkg/models"
 )
 
-func dummyDbInit() {
-	if app.Cfg.Env == app.Development {
-		orm, err := db.CreateEngine()
+func (ctx *Context) dummyDbInit() {
+	if ctx.Config.Env == app.Development {
+		orm, err := db.CreateEngine(ctx.Config.DbConnectionUri)
 		if err != nil {
-			app.Logger.Fatal(err)
+			ctx.Logger.Fatal(err)
 		}
 
 		err = orm.AutoMigrate(&models.User{})
 		if err != nil {
-			app.Logger.Fatal(err)
+			ctx.Logger.Fatal(err)
 		}
 		orm.Create(&models.User{
 			Username:  "dummy",

@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/sourcehaven/mypass-godbridge/pkg/app"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
 
@@ -12,8 +12,7 @@ import (
 // @Produce      html
 // @Success      418
 // @Router       /teapot [get]
-func IamTeapot(ctx app.Ctx) (err error) {
-	ctx.GetLogger().Debug("This is hell!")
+func IamTeapot(ctx *fiber.Ctx) (err error) {
 	err = ctx.Status(http.StatusTeapot).SendString("I am a teapot")
 	return
 }

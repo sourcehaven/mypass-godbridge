@@ -1,14 +1,12 @@
 package db
 
 import (
-	"github.com/sourcehaven/mypass-godbridge/pkg/app"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-func CreateEngine() (*gorm.DB, error) {
-	dsn := app.Cfg.DbConnectionUri
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+func CreateEngine(conn string) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(conn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}

@@ -9,7 +9,7 @@ import (
 func Getenv(key string, dft string) string {
 	val := os.Getenv(key)
 	if val == "" {
-		Logger.WithFields(logrus.Fields{
+		logrus.WithFields(logrus.Fields{
 			"topic":   "Configuration warning",
 			"event":   "Using fallback",
 			"key":     key,
@@ -34,7 +34,7 @@ func ParseEnv(env string) Appenv {
 		return Production
 	default:
 		// use vanilla logrus as Logger is not guaranteed to be configured at this point
-		Logger.WithFields(logrus.Fields{
+		logrus.WithFields(logrus.Fields{
 			"topic":   "Application environment configuration",
 			"event":   "Using default",
 			"level":   env,
