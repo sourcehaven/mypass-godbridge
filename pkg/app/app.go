@@ -1,42 +1,39 @@
 package app
 
 import (
-	"github.com/gin-gonic/gin"
+	swagger "github.com/arsmn/fiber-swagger/v2"
+	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcehaven/mypass-godbridge/pkg/routers"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type App struct {
-	*gin.Engine
+	*fiber.App
+	Logger *logrus.Logger
+	Config *Config
 }
 
-func initRouters(engine *gin.Engine) *gin.Engine {
-	engine.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	api := engine.Group("/api")
+func initRouters(app *fiber.App) *fiber.App {
+	app.Get("/docs/*", swagger.HandlerDefault)
+	api := app.Group("/api")
 	{
-		api.GET("/teapot", routers.IamTeapot)
+		api.Get("/teapot", routers.IamTeapot)
 	}
-	return engine
+	return app
 }
 
-func (m *App) Start() {
-	host := Cfg.Host
-	port := Cfg.Port
+func (app *App) Start() {
+	host := app.Config.Host
+	port := app.Config.Port
 	addr := host + ":" + port
-	_ = m.Run(addr)
+	_ = app.Listen(addr)
 }
 
 func New() *App {
-	if Cfg.Env == Production {
-		Logger.WithFields(logrus.Fields{
-			"topic": "Gin mode",
-		}).Info("Entering production environment.")
-		gin.SetMode(gin.ReleaseMode)
-	}
-	engine := gin.Default()
-	engine = initRouters(engine)
-	app := &App{engine}
+	fib := fiber.New()
+	log := logrus.New()
+	cfg := NewConfig()
+	fib = initRouters(fib)
+	app := &App{fib, log, cfg}
 	return app
 }

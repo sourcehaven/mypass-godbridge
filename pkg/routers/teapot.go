@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/sourcehaven/mypass-godbridge/pkg/app"
 	"net/http"
 )
 
@@ -12,6 +12,8 @@ import (
 // @Produce      html
 // @Success      418
 // @Router       /teapot [get]
-func IamTeapot(c *gin.Context) {
-	c.JSON(http.StatusTeapot, "I am a teapot!")
+func IamTeapot(ctx app.Ctx) (err error) {
+	ctx.GetLogger().Debug("This is hell!")
+	err = ctx.Status(http.StatusTeapot).SendString("I am a teapot")
+	return
 }

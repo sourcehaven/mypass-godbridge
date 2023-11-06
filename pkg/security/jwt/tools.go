@@ -1,11 +1,9 @@
 package jwt
 
 import (
-	"encoding/base64"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
-	"github.com/sourcehaven/mypass-godbridge/pkg/app"
 	"strings"
 	"time"
 )
@@ -39,13 +37,13 @@ func ParseJwtSigningMethod(method string) jwt.SigningMethod {
 	case "eddsa":
 		return jwt.SigningMethodEdDSA
 	case "none", "":
-		app.Logger.WithFields(logrus.Fields{
+		logrus.WithFields(logrus.Fields{
 			"topic": "Empty signature algorithm",
 			"sign":  method,
 		}).Warn("Moving on without signature algorithm. This is usually a bad idea. :(")
 		return jwt.SigningMethodNone
 	default:
-		app.Logger.WithFields(logrus.Fields{
+		logrus.WithFields(logrus.Fields{
 			"topic":   "Signature algorithm",
 			"sign":    method,
 			"default": "hs256",
@@ -55,9 +53,14 @@ func ParseJwtSigningMethod(method string) jwt.SigningMethod {
 }
 
 type TokenOptions struct {
-	Payload Payload
-	Fresh   Fresh
-	Refresh Refresh
+	Payload           Payload
+	Fresh             Fresh
+	Refresh           Refresh
+	JwtAccessExpires  time.Duration
+	JwtRefreshExpires time.Duration
+	JwtSigningMethod  jwt.SigningMethod
+	JwtAccessKey      string
+	JwtRefreshKey     string
 }
 
 func CreateAccessToken(identity string, opts TokenOptions) (tokenString string, err error) {
@@ -67,11 +70,11 @@ func CreateAccessToken(identity string, opts TokenOptions) (tokenString string, 
 		Refresh: false,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   identity,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(app.Cfg.JwtAccessExpires).UTC()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(opts.JwtAccessExpires).UTC()),
 		},
 	}
-	token := jwt.NewWithClaims(app.Cfg.JwtSigningMethod, claims)
-	base64Key := []byte(base64.StdEncoding.EncodeToString([]byte(app.Cfg.JwtAccessKey)))
+	token := jwt.NewWithClaims(opts.JwtSigningMethod, claims)
+	base64Key := []byte(opts.JwtAccessKey)
 	tokenString, err = token.SignedString(base64Key)
 	return
 }
@@ -82,8 +85,8 @@ func CreateRefreshToken(identity string, opts TokenOptions) (tokenString string,
 		Refresh:          true,
 		RegisteredClaims: jwt.RegisteredClaims{Subject: identity},
 	}
-	token := jwt.NewWithClaims(app.Cfg.JwtSigningMethod, claims)
-	base64Key := []byte(base64.StdEncoding.EncodeToString([]byte(app.Cfg.JwtRefreshKey)))
+	token := jwt.NewWithClaims(opts.JwtSigningMethod, claims)
+	base64Key := []byte(opts.JwtRefreshKey)
 	tokenString, err = token.SignedString(base64Key)
 	return
 }
@@ -104,12 +107,12 @@ func commonChecks(token jwt.Token, claims *Claim, err *error) {
 	}
 }
 
-func ValidateAccessToken(signedToken string) (claims *Claim, err error) {
+func ValidateAccessToken(signedToken string, opts TokenOptions) (claims *Claim, err error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&Claim{},
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(base64.StdEncoding.EncodeToString([]byte(app.Cfg.JwtAccessKey))), nil
+			return []byte(opts.JwtAccessKey), nil
 		},
 	)
 	claims = &Claim{}
@@ -125,12 +128,12 @@ func ValidateAccessToken(signedToken string) (claims *Claim, err error) {
 	return
 }
 
-func ValidateFreshAccessToken(signedToken string) (claims *Claim, err error) {
+func ValidateFreshAccessToken(signedToken string, opts TokenOptions) (claims *Claim, err error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&Claim{},
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(base64.StdEncoding.EncodeToString([]byte(app.Cfg.JwtAccessKey))), nil
+			return []byte(opts.JwtAccessKey), nil
 		},
 	)
 	claims = &Claim{}
@@ -150,12 +153,12 @@ func ValidateFreshAccessToken(signedToken string) (claims *Claim, err error) {
 	return
 }
 
-func ValidateRefreshToken(signedToken string) (claims *Claim, err error) {
+func ValidateRefreshToken(signedToken string, opts TokenOptions) (claims *Claim, err error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&Claim{},
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(base64.StdEncoding.EncodeToString([]byte(app.Cfg.JwtRefreshKey))), nil
+			return []byte(opts.JwtRefreshKey), nil
 		},
 	)
 	claims = &Claim{}

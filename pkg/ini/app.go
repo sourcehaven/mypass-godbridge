@@ -3,8 +3,6 @@ package ini
 import "github.com/sourcehaven/mypass-godbridge/pkg/services"
 
 func init() {
-	// app environment initialization
-	configInit()
 	loggerInit()
 	dummyDbInit()
 
