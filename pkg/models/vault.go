@@ -11,9 +11,8 @@ type Vault struct {
 	Website  string
 	Notes    string
 	Folder   string
-	Active   bool
-	Deleted  bool
 
+	// Relationships
 	ParentID *uint
 	Parent   *Vault `gorm:"foreignkey:ParentID"`
 	TagID    *uint

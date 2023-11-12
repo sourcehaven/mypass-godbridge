@@ -4,6 +4,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// PWToken
+// Model for storing password encrypted user token
 type PWToken struct {
 	gorm.Model
 	ID     uint
@@ -11,6 +13,8 @@ type PWToken struct {
 	Salt   string
 }
 
+// PPToken
+// Model for storing passphrase encrypted user token
 type PPToken struct {
 	gorm.Model
 	ID     uint

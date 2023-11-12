@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	myjwt "github.com/sourcehaven/mypass-godbridge/pkg/security/jwt"
+	"github.com/sourcehaven/mypass-godbridge/pkg/utils"
 	"strings"
 	"time"
 )
@@ -33,7 +34,7 @@ type Config struct {
 	DbConnectionUri   string            // specifies the db connection string
 }
 
-func NewConfig() *Config {
+func newConfig() *Config {
 	env := Getenv("MYPASS_ENV", "development")
 
 	env = strings.ToLower(env)
@@ -50,7 +51,7 @@ func NewConfig() *Config {
 	const dburi = "file::memory:?cache=shared"
 
 	return &Config{
-		Env:               ParseEnv(env),
+		Env:               parseEnv(env),
 		Host:              Getenv("MYPASS_HOST", host),
 		Port:              Getenv("MYPASS_PORT", port),
 		SecretKey:         Getenv("MYPASS_SECRET_KEY", secret),
@@ -59,7 +60,13 @@ func NewConfig() *Config {
 		JwtSigningMethod:  myjwt.ParseJwtSigningMethod(Getenv("MYPASS_JWT_SIGNING_METHOD", algo)),
 		JwtAccessExpires:  10 * time.Minute,
 		JwtRefreshExpires: 240 * time.Hour,
-		LogLevel:          ParseLogLevel(Getenv("MYPASS_LOGLEVEL", level)),
+		LogLevel:          utils.ParseLogLevel(Getenv("MYPASS_LOGLEVEL", level)),
 		DbConnectionUri:   Getenv("MYPASS_DB_CONNECTION_URI", dburi),
 	}
+}
+
+var Cfg *Config
+
+func init() {
+	Cfg = newConfig()
 }

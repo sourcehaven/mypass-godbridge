@@ -11,4 +11,5 @@ type User struct {
 	Password  string
 	Firstname string
 	Lastname  string
+	Active    bool `gorm:"default:false"`
 }

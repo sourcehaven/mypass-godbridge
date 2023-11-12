@@ -1,19 +1,33 @@
 package main
 
 import (
-	swagger "github.com/arsmn/fiber-swagger/v2"
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
+	_ "github.com/sourcehaven/mypass-godbridge/docs"
 	"github.com/sourcehaven/mypass-godbridge/pkg/app"
+	"github.com/sourcehaven/mypass-godbridge/pkg/ini"
 	_ "github.com/sourcehaven/mypass-godbridge/pkg/ini"
 	"github.com/sourcehaven/mypass-godbridge/pkg/routers"
 )
 
 func initRouters(app *fiber.App) {
-	app.Get("/docs/*", swagger.HandlerDefault)
+	app.Use(swagger.New(swagger.Config{
+		BasePath: "/api",
+		FilePath: "./docs/swagger.json",
+		Path:     "docs",
+		Title:    "Swagger API Docs",
+	}))
 	api := app.Group("/api")
 	{
 		api.Get("/teapot", routers.IamTeapot)
+
+		auth := api.Group("/auth")
+		{
+			auth.Post("/register", routers.RegisterUser)
+			auth.Post("/activate/:token", routers.ActivateUser)
+			auth.Post("/login", routers.LoginUser)
+		}
 	}
 }
 
@@ -23,14 +37,9 @@ func initRouters(app *fiber.App) {
 // @host          localhost:7277
 // @BasePath      /api
 func main() {
-	engine := fiber.New()
-	log := logrus.New()
-	cfg := app.NewConfig()
-
-	log.SetLevel(cfg.LogLevel)
-	//appContext := &deps.AppContext{Config: cfg, Logger: log}
-
-	initRouters(engine)
-	addr := cfg.Host + ":" + cfg.Port
-	log.Fatal(engine.Listen(addr))
+	srv := app.New(app.Cfg)
+	logrus.SetLevel(app.Cfg.LogLevel)
+	ini.InitApp()
+	initRouters(srv.App)
+	srv.StartServerWithGracefulShutdown()
 }

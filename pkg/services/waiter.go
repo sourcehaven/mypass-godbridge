@@ -1,17 +1,15 @@
 package services
 
 import (
-	"github.com/sourcehaven/mypass-godbridge/pkg/app"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
-func (ctx *Context) Wait4Ever(wakems int) {
-	if ctx.Config.Env == app.Development {
-		go func() {
-			for {
-				time.Sleep(time.Duration(wakems) * time.Millisecond)
-				ctx.Logger.Println("I am waiting patiently ...")
-			}
-		}()
-	}
+func Wait4Ever(wakems int) {
+	go func() {
+		for {
+			time.Sleep(time.Duration(wakems) * time.Millisecond)
+			logrus.Debug("I am waiting patiently ...")
+		}
+	}()
 }

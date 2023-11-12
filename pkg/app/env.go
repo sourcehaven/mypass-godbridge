@@ -20,7 +20,7 @@ func Getenv(key string, dft string) string {
 	return val
 }
 
-func ParseEnv(env string) Appenv {
+func parseEnv(env string) Appenv {
 	switch strings.ToLower(env) {
 	case "devel", "development":
 		return Development

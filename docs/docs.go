@@ -17,7 +17,180 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/auth/activate/{token}": {
+            "post": {
+                "description": "Activates a freshly registered user based on activation link and initial password.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User activation endpoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ActivationToken token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "User activation form containing old and new password",
+                        "name": "activation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UserActivation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Authenticates user with given username and password. If correct, gives out access and refresh tokens.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User login/authentication endpoint",
+                "parameters": [
+                    {
+                        "description": "User login form containing username and plain password",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UserLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "Responds with created status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Registration endpoint",
+                "parameters": [
+                    {
+                        "description": "Register user",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UserReg"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/teapot": {
+            "get": {
+                "description": "Responds with \"I am a teapot!\"",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "teapot"
+                ],
+                "summary": "Teapot endpoint",
+                "responses": {
+                    "418": {
+                        "description": "I'm a teapot"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "schemas.UserActivation": {
+            "type": "object",
+            "required": [
+                "newPassword",
+                "oldPassword"
+            ],
+            "properties": {
+                "newPassword": {
+                    "type": "string"
+                },
+                "oldPassword": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.UserLogin": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "super-secret"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "mypass"
+                }
+            }
+        },
+        "schemas.UserReg": {
+            "type": "object",
+            "required": [
+                "email",
+                "passphrase",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "mypass@mypass.com"
+                },
+                "firstname": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "passphrase": {
+                    "type": "string",
+                    "example": "quick brown fox jumping"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "mypass"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

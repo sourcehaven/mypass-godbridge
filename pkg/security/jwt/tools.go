@@ -61,9 +61,10 @@ type TokenOptions struct {
 	JwtSigningMethod  jwt.SigningMethod
 	JwtAccessKey      string
 	JwtRefreshKey     string
+	AllowExpired      bool
 }
 
-func CreateAccessToken(identity string, opts TokenOptions) (tokenString string, err error) {
+func CreateAccessToken(identity string, opts *TokenOptions) (tokenString string, err error) {
 	claims := &Claim{
 		Fresh:   opts.Fresh,
 		Payload: opts.Payload,
@@ -79,7 +80,7 @@ func CreateAccessToken(identity string, opts TokenOptions) (tokenString string, 
 	return
 }
 
-func CreateRefreshToken(identity string, opts TokenOptions) (tokenString string, err error) {
+func CreateRefreshToken(identity string, opts *TokenOptions) (tokenString string, err error) {
 	claims := &Claim{
 		Payload:          opts.Payload,
 		Refresh:          true,
@@ -91,23 +92,28 @@ func CreateRefreshToken(identity string, opts TokenOptions) (tokenString string,
 	return
 }
 
-func commonChecks(token jwt.Token, claims *Claim, err *error) {
+var (
+	ErrTokenExpired   = errors.New("token expired")
+	ErrTokenMalformed = errors.New("malformed claims")
+)
+
+func commonChecks(token jwt.Token, claims *Claim, err *error, checkExpiry bool) {
 	if *err != nil {
 		return
 	}
 	claim, ok := token.Claims.(*Claim)
 	*claims = *claim
 	if !ok {
-		*err = errors.New("malformed claims")
+		*err = ErrTokenMalformed
 		return
 	}
-	if claims.ExpiresAt != nil && claims.ExpiresAt.Unix() < time.Now().Unix() {
-		*err = errors.New("token expired")
+	if checkExpiry && claims.ExpiresAt != nil && claims.ExpiresAt.Unix() < time.Now().Unix() {
+		*err = ErrTokenExpired
 		return
 	}
 }
 
-func ValidateAccessToken(signedToken string, opts TokenOptions) (claims *Claim, err error) {
+func ValidateAccessToken(signedToken string, opts *TokenOptions) (claims *Claim, err error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&Claim{},
@@ -116,7 +122,7 @@ func ValidateAccessToken(signedToken string, opts TokenOptions) (claims *Claim, 
 		},
 	)
 	claims = &Claim{}
-	commonChecks(*token, claims, &err)
+	commonChecks(*token, claims, &err, !opts.AllowExpired)
 	if err != nil {
 		claims = nil
 		return
@@ -128,7 +134,7 @@ func ValidateAccessToken(signedToken string, opts TokenOptions) (claims *Claim, 
 	return
 }
 
-func ValidateFreshAccessToken(signedToken string, opts TokenOptions) (claims *Claim, err error) {
+func ValidateFreshAccessToken(signedToken string, opts *TokenOptions) (claims *Claim, err error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&Claim{},
@@ -137,7 +143,7 @@ func ValidateFreshAccessToken(signedToken string, opts TokenOptions) (claims *Cl
 		},
 	)
 	claims = &Claim{}
-	commonChecks(*token, claims, &err)
+	commonChecks(*token, claims, &err, !opts.AllowExpired)
 	if err != nil {
 		claims = nil
 		return
@@ -153,7 +159,7 @@ func ValidateFreshAccessToken(signedToken string, opts TokenOptions) (claims *Cl
 	return
 }
 
-func ValidateRefreshToken(signedToken string, opts TokenOptions) (claims *Claim, err error) {
+func ValidateRefreshToken(signedToken string, opts *TokenOptions) (claims *Claim, err error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&Claim{},
@@ -162,7 +168,7 @@ func ValidateRefreshToken(signedToken string, opts TokenOptions) (claims *Claim,
 		},
 	)
 	claims = &Claim{}
-	commonChecks(*token, claims, &err)
+	commonChecks(*token, claims, &err, !opts.AllowExpired)
 	if err != nil {
 		claims = nil
 		return

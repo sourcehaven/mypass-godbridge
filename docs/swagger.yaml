@@ -1,4 +1,49 @@
 basePath: /api
+definitions:
+  schemas.UserActivation:
+    properties:
+      newPassword:
+        type: string
+      oldPassword:
+        type: string
+    required:
+    - newPassword
+    - oldPassword
+    type: object
+  schemas.UserLogin:
+    properties:
+      password:
+        example: super-secret
+        type: string
+      username:
+        example: mypass
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  schemas.UserReg:
+    properties:
+      email:
+        example: mypass@mypass.com
+        type: string
+      firstname:
+        example: John
+        type: string
+      lastname:
+        example: Doe
+        type: string
+      passphrase:
+        example: quick brown fox jumping
+        type: string
+      username:
+        example: mypass
+        type: string
+    required:
+    - email
+    - passphrase
+    - username
+    type: object
 host: localhost:7277
 info:
   contact: {}
@@ -6,5 +51,77 @@ info:
     name: MIT
   title: MyPass API
   version: 0.1.0
-paths: {}
+paths:
+  /auth/activate/{token}:
+    post:
+      description: Activates a freshly registered user based on activation link and
+        initial password.
+      parameters:
+      - description: ActivationToken token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: User activation form containing old and new password
+        in: body
+        name: activation
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UserActivation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: User activation endpoint
+      tags:
+      - auth
+  /auth/login:
+    post:
+      description: Authenticates user with given username and password. If correct,
+        gives out access and refresh tokens.
+      parameters:
+      - description: User login form containing username and plain password
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: User login/authentication endpoint
+      tags:
+      - auth
+  /auth/register:
+    post:
+      description: Responds with created status
+      parameters:
+      - description: Register user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UserReg'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Registration endpoint
+      tags:
+      - auth
+  /teapot:
+    get:
+      description: Responds with "I am a teapot!"
+      produces:
+      - text/html
+      responses:
+        "418":
+          description: I'm a teapot
+      summary: Teapot endpoint
+      tags:
+      - teapot
 swagger: "2.0"
